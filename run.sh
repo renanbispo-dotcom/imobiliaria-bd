@@ -1,7 +1,7 @@
-#!/bin/bash
+
 set -e
 
-# Detecta automaticamente um JAR do driver PostgreSQL em lib/
+
 JAR_PATH=$(ls lib/postgresql*.jar 2>/dev/null | head -n1 || true)
 
 if [ -z "$JAR_PATH" ]; then

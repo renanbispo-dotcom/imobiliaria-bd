@@ -25,9 +25,7 @@ public class ImovelDAO {
 
             conn.setAutoCommit(false);
 
-            /*
-             * INSERE ENDERECO
-             */
+            
             String sqlEndereco
                     = "INSERT INTO endereco "
                     + "(logradouro, bairro, cidade, estado, referencia) "
@@ -73,9 +71,7 @@ public class ImovelDAO {
                 }
             }
 
-            /*
-             * INSERE IMOVEL
-             */
+        
             String sqlImovel
                     = "INSERT INTO imovel ("
                     + "metragem, "
@@ -152,9 +148,7 @@ public class ImovelDAO {
                 }
             }
 
-            /*
-             * INSERE FOTOS
-             */
+            
             if (imovel.getFotos() != null
                     && !imovel.getFotos().isEmpty()) {
 

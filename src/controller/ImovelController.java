@@ -3,6 +3,11 @@ package controller;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import dao.ImovelDAO;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import model.Endereco;
 import model.FotoImovel;
 import model.Imovel;
@@ -10,319 +15,270 @@ import model.Proprietario;
 import model.TipoImovel;
 import util.JsonUtil;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-
 public class ImovelController implements HttpHandler {
 
-    private final ImovelDAO dao =
-            new ImovelDAO();
+        private final ImovelDAO dao = new ImovelDAO();
 
-    @Override
-    public void handle(HttpExchange exchange)
-            throws IOException {
+        @Override
+        public void handle(HttpExchange exchange)
+                        throws IOException {
 
-        String metodo =
-                exchange.getRequestMethod();
+                String metodo = exchange.getRequestMethod();
 
-        try {
+                try {
 
-            switch (metodo) {
+                        switch (metodo) {
 
-                case "POST":
+                                case "POST":
 
-                    inserir(exchange);
+                                        inserir(exchange);
 
-                    break;
+                                        break;
 
-                default:
+                                case "GET":
 
-                    enviarResposta(
-                            exchange,
-                            405,
-                            """
-                            {
-                                "erro":"Método não permitido"
-                            }
-                            """
-                    );
-            }
+                                        listar(exchange);
 
-        } catch (Exception e) {
+                                        break;
 
-            enviarResposta(
-                    exchange,
-                    500,
-                    """
-                    {
-                        "erro":"%s"
-                    }
-                    """.formatted(
-                            e.getMessage()
-                    )
-            );
-        }
-    }
+                                default:
 
-    private void inserir(HttpExchange exchange)
-            throws IOException {
+                                        enviarResposta(
+                                                        exchange,
+                                                        405,
+                                                        """
+                                                                        {
+                                                                            "erro":"Método não permitido"
+                                                                        }
+                                                                        """);
+                        }
 
-        String body =
-                new String(
-                        exchange.getRequestBody()
-                                .readAllBytes()
-                );
+                } catch (Exception e) {
 
-        /*
-         * PROPRIETARIO
-         */
-
-        String proprietarioJson =
-                JsonUtil.getObject(
-                        body,
-                        "proprietario"
-                );
-
-        Proprietario proprietario =
-                new Proprietario();
-
-        proprietario.setCodProprietario(
-                Integer.parseInt(
-                        JsonUtil.getValue(
-                                proprietarioJson,
-                                "codProprietario"
-                        )
-                )
-        );
-
-        /*
-         * TIPO IMOVEL
-         */
-
-        String tipoJson =
-                JsonUtil.getObject(
-                        body,
-                        "tipoImovel"
-                );
-
-        TipoImovel tipoImovel =
-                new TipoImovel();
-
-        tipoImovel.setCodTipoImovel(
-                Integer.parseInt(
-                        JsonUtil.getValue(
-                                tipoJson,
-                                "codTipoImovel"
-                        )
-                )
-        );
-
-        /*
-         * ENDERECO
-         */
-
-        String enderecoJson =
-                JsonUtil.getObject(
-                        body,
-                        "endereco"
-                );
-
-        Endereco endereco =
-                new Endereco();
-
-        endereco.setLogradouro(
-                JsonUtil.getValue(
-                        enderecoJson,
-                        "logradouro"
-                )
-        );
-
-        endereco.setBairro(
-                JsonUtil.getValue(
-                        enderecoJson,
-                        "bairro"
-                )
-        );
-
-        endereco.setCidade(
-                JsonUtil.getValue(
-                        enderecoJson,
-                        "cidade"
-                )
-        );
-
-        endereco.setEstado(
-                JsonUtil.getValue(
-                        enderecoJson,
-                        "estado"
-                )
-        );
-
-        endereco.setReferencia(
-                JsonUtil.getValue(
-                        enderecoJson,
-                        "referencia"
-                )
-        );
-
-        /*
-         * FOTOS
-         */
-
-        String fotosJson =
-                JsonUtil.getArray(
-                        body,
-                        "fotos"
-                );
-
-        List<String> fotosArray =
-                JsonUtil.getObjectsFromArray(
-                        fotosJson
-                );
-
-        List<FotoImovel> fotos =
-                new ArrayList<>();
-
-        for (String fotoJson : fotosArray) {
-
-            FotoImovel foto =
-                    new FotoImovel();
-
-            foto.setArqFoto(
-                    JsonUtil.getValue(
-                            fotoJson,
-                            "arqFoto"
-                    )
-            );
-
-            fotos.add(foto);
-        }
-
-        /*
-         * IMOVEL
-         */
-
-        Imovel imovel =
-                new Imovel();
-
-        imovel.setMetragem(
-                Double.parseDouble(
-                        JsonUtil.getValue(
-                                body,
-                                "metragem"
-                        )
-                )
-        );
-
-        imovel.setStatus(
-                JsonUtil.getValue(
-                        body,
-                        "status"
-                )
-        );
-
-        imovel.setValorVenda(
-                new BigDecimal(
-                        JsonUtil.getValue(
-                                body,
-                                "valorVenda"
-                        )
-                )
-        );
-
-        imovel.setValorLocacao(
-                new BigDecimal(
-                        JsonUtil.getValue(
-                                body,
-                                "valorLocacao"
-                        )
-                )
-        );
-
-        imovel.setQtdQuartos(
-                Integer.parseInt(
-                        JsonUtil.getValue(
-                                body,
-                                "qtdQuartos"
-                        )
-                )
-        );
-
-        imovel.setQtdSuites(
-                Integer.parseInt(
-                        JsonUtil.getValue(
-                                body,
-                                "qtdSuites"
-                        )
-                )
-        );
-
-        imovel.setQtdGaragens(
-                Integer.parseInt(
-                        JsonUtil.getValue(
-                                body,
-                                "qtdGaragens"
-                        )
-                )
-        );
-
-        imovel.setProprietario(
-                proprietario
-        );
-
-        imovel.setTipoImovel(
-                tipoImovel
-        );
-
-        imovel.setEndereco(
-                endereco
-        );
-
-        imovel.setFotos(
-                fotos
-        );
-
-        // MODIFICADO AQUI: De dao.inserir(imovel) para dao.salvar(imovel)
-        dao.salvar(imovel);
-
-        enviarResposta(
-                exchange,
-                201,
-                """
-                {
-                    "mensagem":"Imovel cadastrado com sucesso"
+                        enviarResposta(
+                                        exchange,
+                                        500,
+                                        """
+                                                        {
+                                                            "erro":"%s"
+                                                        }
+                                                        """.formatted(
+                                                        e.getMessage()));
                 }
-                """
-        );
-    }
+        }
 
-    private void enviarResposta(
-            HttpExchange exchange,
-            int status,
-            String json)
-            throws IOException {
+        private void inserir(HttpExchange exchange)
+                        throws IOException {
 
-        exchange.getResponseHeaders().add(
-                "Content-Type",
-                "application/json"
-        );
+                String body = new String(
+                                exchange.getRequestBody()
+                                                .readAllBytes());
 
-        byte[] bytes =
-                json.getBytes();
+                /*
+                 * PROPRIETARIO
+                 */
 
-        exchange.sendResponseHeaders(
-                status,
-                bytes.length
-        );
+                String proprietarioJson = JsonUtil.getObject(
+                                body,
+                                "proprietario");
 
-        OutputStream os =
-                exchange.getResponseBody();
+                Proprietario proprietario = new Proprietario();
 
-        os.write(bytes);
+                proprietario.setCodProprietario(
+                                Integer.parseInt(
+                                                JsonUtil.getValue(
+                                                                proprietarioJson,
+                                                                "codProprietario")));
 
-        os.close();
-    }
+                String tipoJson = JsonUtil.getObject(
+                                body,
+                                "tipoImovel");
+
+                TipoImovel tipoImovel = new TipoImovel();
+
+                tipoImovel.setCodTipoImovel(
+                                Integer.parseInt(
+                                                JsonUtil.getValue(
+                                                                tipoJson,
+                                                                "codTipoImovel")));
+
+                String enderecoJson = JsonUtil.getObject(
+                                body,
+                                "endereco");
+
+                Endereco endereco = new Endereco();
+
+                endereco.setLogradouro(
+                                JsonUtil.getValue(
+                                                enderecoJson,
+                                                "logradouro"));
+
+                endereco.setBairro(
+                                JsonUtil.getValue(
+                                                enderecoJson,
+                                                "bairro"));
+
+                endereco.setCidade(
+                                JsonUtil.getValue(
+                                                enderecoJson,
+                                                "cidade"));
+
+                endereco.setEstado(
+                                JsonUtil.getValue(
+                                                enderecoJson,
+                                                "estado"));
+
+                endereco.setReferencia(
+                                JsonUtil.getValue(
+                                                enderecoJson,
+                                                "referencia"));
+
+                String fotosJson = JsonUtil.getArray(
+                                body,
+                                "fotos");
+
+                List<String> fotosArray = JsonUtil.getObjectsFromArray(
+                                fotosJson);
+
+                List<FotoImovel> fotos = new ArrayList<>();
+
+                for (String fotoJson : fotosArray) {
+
+                        FotoImovel foto = new FotoImovel();
+
+                        foto.setArqFoto(
+                                        JsonUtil.getValue(
+                                                        fotoJson,
+                                                        "arqFoto"));
+
+                        fotos.add(foto);
+                }
+
+                Imovel imovel = new Imovel();
+
+                imovel.setMetragem(
+                                Double.parseDouble(
+                                                JsonUtil.getValue(
+                                                                body,
+                                                                "metragem")));
+
+                imovel.setStatus(
+                                JsonUtil.getValue(
+                                                body,
+                                                "status"));
+
+                imovel.setValorVenda(
+                                new BigDecimal(
+                                                JsonUtil.getValue(
+                                                                body,
+                                                                "valorVenda")));
+
+                imovel.setValorLocacao(
+                                new BigDecimal(
+                                                JsonUtil.getValue(
+                                                                body,
+                                                                "valorLocacao")));
+
+                imovel.setQtdQuartos(
+                                Integer.parseInt(
+                                                JsonUtil.getValue(
+                                                                body,
+                                                                "qtdQuartos")));
+
+                imovel.setQtdSuites(
+                                Integer.parseInt(
+                                                JsonUtil.getValue(
+                                                                body,
+                                                                "qtdSuites")));
+
+                imovel.setQtdGaragens(
+                                Integer.parseInt(
+                                                JsonUtil.getValue(
+                                                                body,
+                                                                "qtdGaragens")));
+
+                imovel.setProprietario(
+                                proprietario);
+
+                imovel.setTipoImovel(
+                                tipoImovel);
+
+                imovel.setEndereco(
+                                endereco);
+
+                imovel.setFotos(
+                                fotos);
+
+                dao.salvar(imovel);
+
+                enviarResposta(
+                                exchange,
+                                201,
+                                """
+                                                {
+                                                    "mensagem":"Imovel cadastrado com sucesso"
+                                                }
+                                                """);
+        }
+
+        private void enviarResposta(
+                        HttpExchange exchange,
+                        int status,
+                        String json)
+                        throws IOException {
+
+                exchange.getResponseHeaders().add(
+                                "Content-Type",
+                                "application/json");
+
+                byte[] bytes = json.getBytes();
+
+                exchange.sendResponseHeaders(
+                                status,
+                                bytes.length);
+
+                OutputStream os = exchange.getResponseBody();
+
+                os.write(bytes);
+
+                os.close();
+        }
+
+        private void listar(HttpExchange exchange)
+                        throws IOException {
+
+                List<Imovel> imoveis = dao.listar();
+
+                StringBuilder json = new StringBuilder();
+
+                json.append("[");
+
+                for (int i = 0; i < imoveis.size(); i++) {
+
+                        Imovel imovel = imoveis.get(i);
+
+                        json.append(
+                                        """
+                                                        {
+                                                            "codImovel":%d,
+                                                            "metragem":%s,
+                                                            "status":"%s"
+                                                        }
+                                                        """.formatted(
+                                                        imovel.getCodImovel(),
+                                                        imovel.getMetragem(),
+                                                        imovel.getStatus()));
+
+                        if (i < imoveis.size() - 1) {
+                                json.append(",");
+                        }
+                }
+
+                json.append("]");
+
+                enviarResposta(
+                                exchange,
+                                200,
+                                json.toString());
+        }
 }

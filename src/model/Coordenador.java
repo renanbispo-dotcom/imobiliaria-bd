@@ -3,6 +3,7 @@ package model;
 public class Coordenador {
 
     private Integer codCoordenador;
+
     private String nomeCoordenador;
 
     public Coordenador() {
@@ -22,5 +23,13 @@ public class Coordenador {
 
     public void setNomeCoordenador(String nomeCoordenador) {
         this.nomeCoordenador = nomeCoordenador;
+    }
+
+    @Override
+    public String toString() {
+        return "Coordenador{" +
+                "codCoordenador=" + codCoordenador +
+                ", nomeCoordenador='" + nomeCoordenador + '\'' +
+                '}';
     }
 }

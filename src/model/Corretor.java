@@ -3,9 +3,12 @@ package model;
 public class Corretor {
 
     private Integer codCorretor;
+
     private String nomeCorretor;
+
     private String creci;
-    private Integer codCoordenador;
+
+    private Coordenador coordenador;
 
     public Corretor() {
     }
@@ -34,11 +37,24 @@ public class Corretor {
         this.creci = creci;
     }
 
-    public Integer getCodCoordenador() {
-        return codCoordenador;
+    public Coordenador getCoordenador() {
+        return coordenador;
     }
 
-    public void setCodCoordenador(Integer codCoordenador) {
-        this.codCoordenador = codCoordenador;
+    public void setCoordenador(Coordenador coordenador) {
+        this.coordenador = coordenador;
+    }
+
+    @Override
+    public String toString() {
+        return "Corretor{" +
+                "codCorretor=" + codCorretor +
+                ", nomeCorretor='" + nomeCorretor + '\'' +
+                ", creci='" + creci + '\'' +
+                ", coordenador=" +
+                (coordenador != null
+                        ? coordenador.getCodCoordenador()
+                        : null) +
+                '}';
     }
 }
