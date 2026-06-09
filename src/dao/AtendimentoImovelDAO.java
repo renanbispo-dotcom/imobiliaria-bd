@@ -11,6 +11,7 @@ import model.AtendimentoImovel;
 import model.Cliente;
 import model.Corretor;
 import model.Imovel;
+import model.TipoImovel;
 
 public class AtendimentoImovelDAO {
 
@@ -33,52 +34,27 @@ public class AtendimentoImovelDAO {
 
         try (
                 Connection conn = ConnectionFactory.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)
-        ) {
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setInt(
-                    1,
-                    atendimento.getImovel().getCodImovel()
-            );
-
-            stmt.setInt(
-                    2,
-                    atendimento.getCliente().getCodCliente()
-            );
-
-            stmt.setInt(
-                    3,
-                    atendimento.getCorretor().getCodCorretor()
-            );
+            stmt.setInt(1, atendimento.getImovel().getCodImovel());
+            stmt.setInt(2, atendimento.getCliente().getCodCliente());
+            stmt.setInt(3, atendimento.getCorretor().getCodCorretor());
 
             if (atendimento.getDataAtendimento() == null
                     || atendimento.getDataAtendimento().isBlank()) {
                 stmt.setNull(4, java.sql.Types.TIMESTAMP);
             } else {
-                stmt.setTimestamp(
-                        4,
-                        Timestamp.valueOf(atendimento.getDataAtendimento())
-                );
+                stmt.setTimestamp(4, Timestamp.valueOf(atendimento.getDataAtendimento()));
             }
 
-            stmt.setString(
-                    5,
-                    atendimento.getStatus()
-            );
-
-            stmt.setBigDecimal(
-                    6,
-                    atendimento.getValorVenda()
-            );
-
-            stmt.setString(
-                    7,
-                    atendimento.getObservacoes()
-            );
+            stmt.setString(5, atendimento.getStatus());
+            stmt.setBigDecimal(6, atendimento.getValorVenda());
+            stmt.setString(7, atendimento.getObservacoes());
 
             stmt.executeUpdate();
 
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException("Erro ao salvar atendimento de imóvel", e);
         }
     }
@@ -87,40 +63,48 @@ public class AtendimentoImovelDAO {
 
         List<AtendimentoImovel> lista = new ArrayList<>();
 
+        
         String sql = """
                 SELECT
                     a.*,
                     i.metragem AS imovel_metragem,
                     i.status AS imovel_status,
                     c.nome AS cliente_nome,
-                    r.nome_corretor AS corretor_nome
+                    r.nome_corretor AS corretor_nome,
+                    t.cod_tipo_imovel AS tipo_id,
+                    t.tipo AS tipo_nome
                 FROM atendimento_imovel a
-                INNER JOIN imovel i
+                INNER JOIN imovel i 
                     ON i.cod_imovel = a.cod_imovel
-                INNER JOIN cliente c
+                INNER JOIN tipo_imovel t 
+                    ON t.cod_tipo_imovel = i.cod_tipo_imovel
+                INNER JOIN cliente c 
                     ON c.cod_cliente = a.cod_cliente
-                INNER JOIN corretor r
+                INNER JOIN corretor r 
                     ON r.cod_corretor = a.cod_corretor
                 """;
 
         try (
                 Connection conn = ConnectionFactory.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql);
-                ResultSet rs = stmt.executeQuery()
-        ) {
+                ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
 
                 AtendimentoImovel atendimento = new AtendimentoImovel();
+                atendimento.setCodAtendimento(rs.getInt("cod_atendimento"));
 
-                atendimento.setCodAtendimento(
-                        rs.getInt("cod_atendimento")
-                );
+                
+                TipoImovel tipo = new TipoImovel();
+                tipo.setCodTipoImovel(rs.getInt("tipo_id")); 
+                tipo.setTipo(rs.getString("tipo_nome"));
 
+                
                 Imovel imovel = new Imovel();
                 imovel.setCodImovel(rs.getInt("cod_imovel"));
                 imovel.setMetragem(rs.getDouble("imovel_metragem"));
                 imovel.setStatus(rs.getString("imovel_status"));
+                imovel.setTipoImovel(tipo); // CORREÇÃO: Associando o tipo ao imóvel
                 atendimento.setImovel(imovel);
 
                 Cliente cliente = new Cliente();
@@ -134,9 +118,7 @@ public class AtendimentoImovelDAO {
                 atendimento.setCorretor(corretor);
 
                 Timestamp data = rs.getTimestamp("data_atendimento");
-                atendimento.setDataAtendimento(
-                        data != null ? data.toString() : null
-                );
+                atendimento.setDataAtendimento(data != null ? data.toString() : null);
 
                 atendimento.setStatus(rs.getString("status"));
                 atendimento.setValorVenda(rs.getBigDecimal("valor_venda"));
@@ -146,6 +128,7 @@ public class AtendimentoImovelDAO {
             }
 
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException("Erro ao listar atendimentos de imóveis", e);
         }
 
@@ -154,23 +137,31 @@ public class AtendimentoImovelDAO {
 
     public AtendimentoImovel buscarPorId(int id) {
 
+        
         String sql = """
                 SELECT
                     a.*,
+                    i.metragem AS imovel_metragem,
+                    i.status AS imovel_status,
                     c.nome AS cliente_nome,
-                    r.nome_corretor AS corretor_nome
+                    r.nome_corretor AS corretor_nome,
+                    t.cod_tipo_imovel AS tipo_id,
+                    t.tipo AS tipo_nome
                 FROM atendimento_imovel a
-                INNER JOIN cliente c
+                INNER JOIN imovel i 
+                    ON i.cod_imovel = a.cod_imovel
+                INNER JOIN tipo_imovel t 
+                    ON t.cod_tipo_imovel = i.cod_tipo_imovel
+                INNER JOIN cliente c 
                     ON c.cod_cliente = a.cod_cliente
-                INNER JOIN corretor r
+                INNER JOIN corretor r 
                     ON r.cod_corretor = a.cod_corretor
                 WHERE a.cod_atendimento = ?
                 """;
 
         try (
                 Connection conn = ConnectionFactory.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)
-        ) {
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, id);
 
@@ -179,13 +170,17 @@ public class AtendimentoImovelDAO {
                 if (rs.next()) {
 
                     AtendimentoImovel atendimento = new AtendimentoImovel();
+                    atendimento.setCodAtendimento(rs.getInt("cod_atendimento"));
 
-                    atendimento.setCodAtendimento(
-                            rs.getInt("cod_atendimento")
-                    );
+                    TipoImovel tipo = new TipoImovel();
+                    tipo.setCodTipoImovel(rs.getInt("tipo_id")); 
+                    tipo.setTipo(rs.getString("tipo_nome"));
 
                     Imovel imovel = new Imovel();
                     imovel.setCodImovel(rs.getInt("cod_imovel"));
+                    imovel.setMetragem(rs.getDouble("imovel_metragem"));
+                    imovel.setStatus(rs.getString("imovel_status"));
+                    imovel.setTipoImovel(tipo); // CORREÇÃO: Associando o tipo ao imóvel
                     atendimento.setImovel(imovel);
 
                     Cliente cliente = new Cliente();
@@ -199,9 +194,7 @@ public class AtendimentoImovelDAO {
                     atendimento.setCorretor(corretor);
 
                     Timestamp data = rs.getTimestamp("data_atendimento");
-                    atendimento.setDataAtendimento(
-                            data != null ? data.toString() : null
-                    );
+                    atendimento.setDataAtendimento(data != null ? data.toString() : null);
 
                     atendimento.setStatus(rs.getString("status"));
                     atendimento.setValorVenda(rs.getBigDecimal("valor_venda"));
@@ -212,6 +205,7 @@ public class AtendimentoImovelDAO {
             }
 
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException("Erro ao buscar atendimento de imóvel", e);
         }
 
@@ -224,8 +218,7 @@ public class AtendimentoImovelDAO {
 
         try (
                 Connection conn = ConnectionFactory.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)
-        ) {
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, id);
             stmt.executeUpdate();

@@ -78,53 +78,63 @@ public class AtendimentoImovelController implements HttpHandler {
 
     private void listar(HttpExchange exchange) throws IOException {
 
-        List<AtendimentoImovel> atendimentos = dao.listar();
+    List<AtendimentoImovel> atendimentos = dao.listar();
 
-        StringBuilder json = new StringBuilder();
-        json.append("[");
+    StringBuilder json = new StringBuilder();
+    json.append("[");
 
-        for (int i = 0; i < atendimentos.size(); i++) {
-            AtendimentoImovel atendimento = atendimentos.get(i);
-            json.append("{")
-                    .append("\"codAtendimento\":")
-                    .append(atendimento.getCodAtendimento()).append(",")
-                    .append("\"imovel\":{")
-                    .append("\"codImovel\":")
-                    .append(atendimento.getImovel().getCodImovel()).append("}")
-                    .append(",")
-                    .append("\"cliente\":{")
-                    .append("\"codCliente\":")
-                    .append(atendimento.getCliente().getCodCliente()).append(",")
-                    .append("\"nome\":\"")
-                    .append(atendimento.getCliente().getNome()).append("\"}")
-                    .append(",")
-                    .append("\"corretor\":{")
-                    .append("\"codCorretor\":")
-                    .append(atendimento.getCorretor().getCodCorretor()).append(",")
-                    .append("\"nomeCorretor\":\"")
-                    .append(atendimento.getCorretor().getNomeCorretor()).append("\"}")
-                    .append(",")
-                    .append("\"dataAtendimento\":\"")
-                    .append(atendimento.getDataAtendimento() == null ? "" : atendimento.getDataAtendimento()).append("\"")
-                    .append(",")
-                    .append("\"status\":\"")
-                    .append(atendimento.getStatus()).append("\"")
-                    .append(",")
-                    .append("\"valorVenda\":")
-                    .append(atendimento.getValorVenda()).append(",")
-                    .append("\"observacoes\":\"")
-                    .append(atendimento.getObservacoes() == null ? "" : atendimento.getObservacoes()).append("\"")
-                    .append("}");
+    for (int i = 0; i < atendimentos.size(); i++) {
+        AtendimentoImovel atendimento = atendimentos.get(i);
+        json.append("{")
+                .append("\"codAtendimento\":")
+                .append(atendimento.getCodAtendimento()).append(",")
+                
+                // --- BLOCO DO IMÓVEL COM TIPO ANINHADO ---
+                .append("\"imovel\":{")
+                .append("\"codImovel\":").append(atendimento.getImovel().getCodImovel()).append(",")
+                .append("\"metragem\":").append(atendimento.getImovel().getMetragem()).append(",")
+                .append("\"status\":\"").append(atendimento.getImovel().getStatus()).append("\",")
+                .append("\"tipoImovel\":{")
+                    .append("\"codTipoImovel\":").append(atendimento.getImovel().getTipoImovel().getCodTipoImovel()).append(",")
+                    .append("\"tipo\":\"").append(atendimento.getImovel().getTipoImovel().getTipo()).append("\"")
+                .append("}")
+                .append("}")
+                // -----------------------------------------
+                
+                .append(",")
+                .append("\"cliente\":{")
+                .append("\"codCliente\":")
+                .append(atendimento.getCliente().getCodCliente()).append(",")
+                .append("\"nome\":\"")
+                .append(atendimento.getCliente().getNome()).append("\"}")
+                .append(",")
+                .append("\"corretor\":{")
+                .append("\"codCorretor\":")
+                .append(atendimento.getCorretor().getCodCorretor()).append(",")
+                .append("\"nomeCorretor\":\"")
+                .append(atendimento.getCorretor().getNomeCorretor()).append("\"}")
+                .append(",")
+                .append("\"dataAtendimento\":\"")
+                .append(atendimento.getDataAtendimento() == null ? "" : atendimento.getDataAtendimento()).append("\"")
+                .append(",")
+                .append("\"status\":\"")
+                .append(atendimento.getStatus()).append("\"")
+                .append(",")
+                .append("\"valorVenda\":")
+                .append(atendimento.getValorVenda()).append(",")
+                .append("\"observacoes\":\"")
+                .append(atendimento.getObservacoes() == null ? "" : atendimento.getObservacoes()).append("\"")
+                .append("}");
 
-            if (i < atendimentos.size() - 1) {
-                json.append(",");
-            }
+        if (i < atendimentos.size() - 1) {
+            json.append(",");
         }
-
-        json.append("]");
-
-        enviarResposta(exchange, 200, json.toString());
     }
+
+    json.append("]");
+
+    enviarResposta(exchange, 200, json.toString());
+}
 
     private void buscarPorId(HttpExchange exchange) throws IOException {
 
