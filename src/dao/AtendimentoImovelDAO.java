@@ -104,7 +104,7 @@ public class AtendimentoImovelDAO {
                 imovel.setCodImovel(rs.getInt("cod_imovel"));
                 imovel.setMetragem(rs.getDouble("imovel_metragem"));
                 imovel.setStatus(rs.getString("imovel_status"));
-                imovel.setTipoImovel(tipo); // CORREÇÃO: Associando o tipo ao imóvel
+                imovel.setTipoImovel(tipo);
                 atendimento.setImovel(imovel);
 
                 Cliente cliente = new Cliente();
