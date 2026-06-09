@@ -4,16 +4,25 @@ Projeto Java simples que expõe uma API HTTP usando `com.sun.net.httpserver.Http
 
 ## Endpoints disponíveis
 
-- `GET /clientes`
-- `GET /clientes/{id}`
-- `POST /clientes`
-- `DELETE /clientes/{id}`
-- `GET /proprietarios`
-- `GET /proprietarios/{id}`
-- `POST /proprietarios`
-- `PUT /proprietarios/{id}`
-- `DELETE /proprietarios/{id}`
-- `POST /imoveis`
+- `GET /cliente`
+- `GET /cliente/{id}`
+- `POST /cliente`
+- `DELETE /cliente/{id}`
+- `GET /proprietario`
+- `GET /proprietario/{id}`
+- `POST /proprietario`
+- `PUT /proprietario/{id}`
+- `DELETE /proprietario/{id}`
+- `GET /imovel`
+- `POST /imovel`
+- `GET /coordenador`
+- `POST /coordenador`
+- `GET /corretor`
+- `POST /corretor`
+- `POST /atendimento-imovel`
+- `GET /atendimento-imovel`
+- `GET /atendimento-imovel/{id}`
+- `DELETE /atendimento-imovel/{id}`
 
 ## Requisitos
 
@@ -72,7 +81,7 @@ O servidor iniciará na porta `8000`.
 ### Criar proprietário
 
 - Método: `POST`
-- URL: `http://localhost:8080/proprietarios`
+- URL: `http://localhost:8080/proprietario`
 - Body: `raw` JSON
 
 ```json

@@ -6,6 +6,7 @@ import controller.CoordenadorController;
 import controller.CorretorController;
 import controller.ImovelController;
 import controller.ProprietarioController;
+import controller.AtendimentoImovelController;
 import java.net.InetSocketAddress;
 
 public class ApiServer {
@@ -59,6 +60,11 @@ public class ApiServer {
         server.createContext(
                 "/corretor",
                 new CorretorController()
+        );
+
+        server.createContext(
+                "/atendimento-imovel",
+                new controller.AtendimentoImovelController()
         );
 
         server.setExecutor(null);
