@@ -257,17 +257,55 @@ public class ImovelController implements HttpHandler {
 
                         Imovel imovel = imoveis.get(i);
 
-                        json.append(
-                                        """
-                                                        {
-                                                            "codImovel":%d,
-                                                            "metragem":%s,
-                                                            "status":"%s"
-                                                        }
-                                                        """.formatted(
-                                                        imovel.getCodImovel(),
-                                                        imovel.getMetragem(),
-                                                        imovel.getStatus()));
+                        json.append("{");
+                        json.append("\"codImovel\":%d,".formatted(imovel.getCodImovel()));
+                        json.append("\"metragem\":%s,".formatted(imovel.getMetragem()));
+                        json.append("\"status\":\"%s\",".formatted(imovel.getStatus()));
+                        json.append("\"valorVenda\":%s,".formatted(imovel.getValorVenda()));
+                        json.append("\"valorLocacao\":%s,".formatted(imovel.getValorLocacao()));
+                        json.append("\"qtdQuartos\":%d,".formatted(imovel.getQtdQuartos()));
+                        json.append("\"qtdSuites\":%d,".formatted(imovel.getQtdSuites()));
+                        json.append("\"qtdGaragens\":%d,".formatted(imovel.getQtdGaragens()));
+
+                        // Dados do Proprietário
+                        json.append("\"proprietario\":{");
+                        json.append("\"codProprietario\":%d,".formatted(imovel.getProprietario().getCodProprietario()));
+                        json.append("\"nome\":\"%s\"".formatted(imovel.getProprietario().getNome()));
+                        json.append("},");
+
+                        // Dados do Tipo de Imóvel
+                        json.append("\"tipoImovel\":{");
+                        json.append("\"codTipoImovel\":%d,".formatted(imovel.getTipoImovel().getCodTipoImovel()));
+                        json.append("\"tipo\":\"%s\"".formatted(imovel.getTipoImovel().getTipo()));
+                        json.append("},");
+
+                        // Dados do Endereço
+                        json.append("\"endereco\":{");
+                        json.append("\"codEndereco\":%d,".formatted(imovel.getEndereco().getCodEndereco()));
+                        json.append("\"logradouro\":\"%s\",".formatted(imovel.getEndereco().getLogradouro()));
+                        json.append("\"bairro\":\"%s\",".formatted(imovel.getEndereco().getBairro()));
+                        json.append("\"cidade\":\"%s\",".formatted(imovel.getEndereco().getCidade()));
+                        json.append("\"estado\":\"%s\",".formatted(imovel.getEndereco().getEstado()));
+                        json.append("\"referencia\":\"%s\"".formatted(imovel.getEndereco().getReferencia()));
+                        json.append("},");
+
+                        // Array de Fotos (Sub-lista)
+                        json.append("\"fotos\":[");
+                        if (imovel.getFotos() != null) {
+                                for (int j = 0; j < imovel.getFotos().size(); j++) {
+                                        FotoImovel foto = imovel.getFotos().get(j);
+                                        json.append("{");
+                                        json.append("\"codFotoImovel\":%d,".formatted(foto.getCodFotoImovel()));
+                                        json.append("\"arqFoto\":\"%s\"".formatted(foto.getArqFoto()));
+                                        json.append("}");
+                                        if (j < imovel.getFotos().size() - 1) {
+                                                json.append(",");
+                                        }
+                                }
+                        }
+                        json.append("]"); // fecha array de fotos
+                        
+                        json.append("}"); // fecha objeto imóvel
 
                         if (i < imoveis.size() - 1) {
                                 json.append(",");

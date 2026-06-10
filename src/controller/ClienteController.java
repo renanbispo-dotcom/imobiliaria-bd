@@ -43,6 +43,12 @@ public class ClienteController implements HttpHandler {
 
                     break;
 
+                case "PUT":
+
+                    atualizar(exchange);
+
+                    break;
+
                 case "DELETE":
 
                     excluir(exchange);

@@ -19,8 +19,9 @@ public class JsonUtil {
 
         inicio += chave.length();
 
-        while (json.charAt(inicio) == ' '
-                || json.charAt(inicio) == '"') {
+        while (inicio < json.length()
+                && (Character.isWhitespace(json.charAt(inicio))
+                || json.charAt(inicio) == '"')) {
 
             inicio++;
         }
